@@ -17,13 +17,6 @@ use Illuminate\Http\Request;
  *     @OA\Property(property="city", type="string"),
  *     @OA\Property(property="is_default", type="boolean")
  * )
- *
- * @OA\SecurityScheme(
- *     securityScheme="sanctum",
- *     type="http",
- *     scheme="bearer",
- *     bearerFormat="JWT"
- * )
  */
 class AddressController extends Controller
 {

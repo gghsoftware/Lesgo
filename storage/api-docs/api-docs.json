@@ -1,23 +1,17 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "LeSGo Platform API",
-        "description": "Logistics & multi-service API for LeSGo (customers, drivers, partners).",
+        "title": "LeSGo API",
+        "description": "Logistics & multi-service API documentation for LeSGo.",
         "version": "1.0.0"
     },
-    "servers": [
-        {
-            "url": "http://127.0.0.1:8000",
-            "description": "Local development server"
-        }
-    ],
     "paths": {
         "/api/v1/users/{user_id}/addresses": {
             "get": {
                 "tags": [
                     "Addresses"
                 ],
-                "summary": "List user addresses",
+                "summary": "List user addresses (owner/admin only)",
                 "operationId": "cf937ead62f5a6454643ebcfd6982109",
                 "parameters": [
                     {
@@ -32,14 +26,25 @@
                 "responses": {
                     "200": {
                         "description": "List of addresses"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             },
             "post": {
                 "tags": [
                     "Addresses"
                 ],
-                "summary": "Create address for user",
+                "summary": "Create address for user (owner/admin only)",
                 "operationId": "2440a4471a8ed76191b6443ac861b2d6",
                 "parameters": [
                     {
@@ -86,8 +91,19 @@
                 "responses": {
                     "201": {
                         "description": "Address created"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/v1/addresses/{id}": {
@@ -95,7 +111,7 @@
                 "tags": [
                     "Addresses"
                 ],
-                "summary": "Delete address",
+                "summary": "Delete address (owner/admin only)",
                 "operationId": "916cbec6afd899a7a29435055a726bec",
                 "parameters": [
                     {
@@ -110,14 +126,25 @@
                 "responses": {
                     "200": {
                         "description": "Address deleted"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             },
             "patch": {
                 "tags": [
                     "Addresses"
                 ],
-                "summary": "Update address",
+                "summary": "Update address (owner/admin only)",
                 "operationId": "e8d0c94e84382eea844edcc758512d6b",
                 "parameters": [
                     {
@@ -132,8 +159,279 @@
                 "responses": {
                     "200": {
                         "description": "Address updated"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/register": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Register a new user",
+                "description": "Register a new user account and receive an authentication token",
+                "operationId": "5ffeaa26d701c3651dfc3a8479084184",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Registration successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 }
+            }
+        },
+        "/api/v1/auth/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Login user",
+                "description": "Authenticate a user and receive an authentication token",
+                "operationId": "97d0fa1f733dead1980e640104204374",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "email": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "Invalid credentials."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/me": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Get current user",
+                "description": "Get the authenticated user's information",
+                "operationId": "708a8e52986b4c4f689d1e4b4b020ebb",
+                "responses": {
+                    "200": {
+                        "description": "User information",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Logout user",
+                "description": "Revoke the current access token",
+                "operationId": "cf53777b1786575f52eb3cfd965c15a0",
+                "responses": {
+                    "200": {
+                        "description": "Logout successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logged out successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/logout-all": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Logout from all devices",
+                "description": "Revoke all access tokens for the authenticated user",
+                "operationId": "83942abc647e76bb04c18751f35eeef1",
+                "responses": {
+                    "200": {
+                        "description": "Logout successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logged out from all devices"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/v1/drivers": {
@@ -147,16 +445,42 @@
                     {
                         "name": "status",
                         "in": "query",
+                        "description": "Filter by driver status (pending, active, offline, suspended)",
                         "required": false,
                         "schema": {
                             "type": "string",
                             "example": "active"
                         }
+                    },
+                    {
+                        "name": "partner_id",
+                        "in": "query",
+                        "description": "Filter by partner ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 2
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "List of driver profiles"
+                        "description": "Paginated list of driver profiles",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/DriverProfile"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -172,15 +496,27 @@
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "Driver profile ID",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Driver profile details"
+                        "description": "Driver profile details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DriverProfile"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found"
                     }
                 }
             }
@@ -196,13 +532,16 @@
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "Driver profile ID",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
                 "requestBody": {
+                    "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
@@ -211,6 +550,7 @@
                                 ],
                                 "properties": {
                                     "status": {
+                                        "description": "pending | active | offline | suspended",
                                         "type": "string",
                                         "example": "active"
                                     }
@@ -222,7 +562,17 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Status updated"
+                        "description": "Status updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DriverProfile"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
                     }
                 }
             }
@@ -238,13 +588,16 @@
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "Driver profile ID",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
                 "requestBody": {
+                    "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
@@ -255,159 +608,13 @@
                                 "properties": {
                                     "last_latitude": {
                                         "type": "number",
-                                        "format": "float"
+                                        "format": "float",
+                                        "example": 14.676041
                                     },
                                     "last_longitude": {
                                         "type": "number",
-                                        "format": "float"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Location updated"
-                    }
-                }
-            }
-        },
-        "/api/v1/orders": {
-            "get": {
-                "tags": [
-                    "Orders"
-                ],
-                "summary": "List orders",
-                "description": "List orders with optional filters (status, customer_id, driver_id, partner_id).",
-                "operationId": "6390e58970c6b576bd8c1ec198cb5fbb",
-                "parameters": [
-                    {
-                        "name": "status",
-                        "in": "query",
-                        "description": "Filter by order status",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "example": "pending"
-                        }
-                    },
-                    {
-                        "name": "customer_id",
-                        "in": "query",
-                        "description": "Filter by customer ID",
-                        "required": false,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "name": "driver_id",
-                        "in": "query",
-                        "description": "Filter by driver profile ID",
-                        "required": false,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "name": "partner_id",
-                        "in": "query",
-                        "description": "Filter by partner ID",
-                        "required": false,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Paginated list of orders",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/Order"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "tags": [
-                    "Orders"
-                ],
-                "summary": "Create order",
-                "description": "Create a new order.",
-                "operationId": "8cb746eb001b58ac915930ba43cfdf0d",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "customer_id",
-                                    "service_id",
-                                    "pickup_address_id",
-                                    "dropoff_address_id"
-                                ],
-                                "properties": {
-                                    "customer_id": {
-                                        "type": "integer",
-                                        "example": 10
-                                    },
-                                    "partner_id": {
-                                        "type": "integer",
-                                        "example": 2,
-                                        "nullable": true
-                                    },
-                                    "driver_id": {
-                                        "type": "integer",
-                                        "example": 5,
-                                        "nullable": true
-                                    },
-                                    "service_id": {
-                                        "type": "integer",
-                                        "example": 1
-                                    },
-                                    "pickup_address_id": {
-                                        "type": "integer",
-                                        "example": 100
-                                    },
-                                    "dropoff_address_id": {
-                                        "type": "integer",
-                                        "example": 101
-                                    },
-                                    "scheduled_at": {
-                                        "type": "string",
-                                        "format": "date-time",
-                                        "nullable": true
-                                    },
-                                    "estimated_distance_m": {
-                                        "type": "integer",
-                                        "nullable": true
-                                    },
-                                    "estimated_fare": {
-                                        "type": "number",
                                         "format": "float",
-                                        "nullable": true
-                                    },
-                                    "payment_method": {
-                                        "type": "string",
-                                        "example": "cash"
-                                    },
-                                    "meta": {
-                                        "type": "object",
-                                        "nullable": true
+                                        "example": 121.0437
                                     }
                                 },
                                 "type": "object"
@@ -416,12 +623,12 @@
                     }
                 },
                 "responses": {
-                    "201": {
-                        "description": "Order created",
+                    "200": {
+                        "description": "Location updated",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Order"
+                                    "$ref": "#/components/schemas/DriverProfile"
                                 }
                             }
                         }
@@ -432,80 +639,66 @@
                 }
             }
         },
-        "/api/v1/orders/{id}": {
-            "get": {
+        "/api/v1/drivers/register": {
+            "post": {
                 "tags": [
-                    "Orders"
+                    "Drivers"
                 ],
-                "summary": "Get order by ID",
-                "description": "Show a single order.",
-                "operationId": "7830784c8e02a11ee0de8d1e6c90a0fd",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "Order ID",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Order details",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Order"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not found"
-                    }
-                }
-            }
-        },
-        "/api/v1/orders/{id}/status": {
-            "patch": {
-                "tags": [
-                    "Orders"
-                ],
-                "summary": "Update order status / payment status",
-                "description": "Update status / payment_status of an order.",
-                "operationId": "a1f68a0165f311d2a8cbbae648a34826",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "Order ID",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    }
-                ],
+                "summary": "Register a new driver (mobile app)",
+                "description": "Creates a user with role=driver and a related driver profile (status=pending).",
+                "operationId": "3db845fa70b65d3f491893dfa1e348cd",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "phone_number",
+                                    "password",
+                                    "license_number"
+                                ],
                                 "properties": {
-                                    "status": {
+                                    "name": {
                                         "type": "string",
-                                        "example": "accepted"
+                                        "example": "Juan Driver"
                                     },
-                                    "payment_status": {
+                                    "email": {
                                         "type": "string",
-                                        "example": "paid"
+                                        "example": "juandriver@example.com"
                                     },
-                                    "cancel_reason": {
+                                    "phone_number": {
                                         "type": "string",
+                                        "example": "09123456789"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "secret123"
+                                    },
+                                    "partner_id": {
+                                        "type": "integer",
+                                        "example": 2,
                                         "nullable": true
+                                    },
+                                    "license_number": {
+                                        "type": "string",
+                                        "example": "D123456789"
+                                    },
+                                    "license_expiry_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2027-12-31"
+                                    },
+                                    "last_latitude": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 14.676041
+                                    },
+                                    "last_longitude": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 121.0437
                                     }
                                 },
                                 "type": "object"
@@ -514,8 +707,23 @@
                     }
                 },
                 "responses": {
-                    "200": {
-                        "description": "Status updated"
+                    "201": {
+                        "description": "Driver registered",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "$ref": "#/components/schemas/User"
+                                        },
+                                        "driver_profile": {
+                                            "$ref": "#/components/schemas/DriverProfile"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "422": {
                         "description": "Validation error"
@@ -907,90 +1115,6 @@
                 }
             }
         },
-        "/api/v1/services": {
-            "get": {
-                "tags": [
-                    "Services"
-                ],
-                "summary": "List services",
-                "operationId": "fbe5641799866689041fdf967803c27b",
-                "parameters": [
-                    {
-                        "name": "partner_id",
-                        "in": "query",
-                        "description": "Filter by partner ID",
-                        "required": false,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "name": "only_active",
-                        "in": "query",
-                        "description": "If 1, return only active services",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "enum": [
-                                0,
-                                1
-                            ]
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "List of services",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/Service"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/services/{id}": {
-            "get": {
-                "tags": [
-                    "Services"
-                ],
-                "summary": "Get service by ID",
-                "operationId": "8ce137110f16c393fc4d592555033e72",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "Service ID",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Service details",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Service"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not found"
-                    }
-                }
-            }
-        },
         "/api/v1/users": {
             "get": {
                 "tags": [
@@ -1182,8 +1306,8 @@
                 "tags": [
                     "Wallets"
                 ],
-                "summary": "Get wallet balance for a user",
-                "description": "Get wallet by user ID.",
+                "summary": "Get wallet balance for a user (owner/admin only)",
+                "description": "Get wallet by user ID (secured).",
                 "operationId": "07d01a7b7e886c5010f910a486d803ad",
                 "parameters": [
                     {
@@ -1208,10 +1332,21 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
                     "404": {
                         "description": "Not found"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/v1/wallets/{user_id}/transactions": {
@@ -1219,8 +1354,8 @@
                 "tags": [
                     "Wallets"
                 ],
-                "summary": "List wallet transactions for a user",
-                "description": "List wallet transactions for a user.",
+                "summary": "List wallet transactions for a user (owner/admin only)",
+                "description": "List wallet transactions for a user (secured).",
                 "operationId": "681f518592b42481ed7479430ba0b856",
                 "parameters": [
                     {
@@ -1257,8 +1392,22 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not found"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         }
     },
@@ -1288,132 +1437,238 @@
                 },
                 "type": "object"
             },
-            "DriverProfile": {
+            "LoginRequest": {
+                "required": [
+                    "email",
+                    "password"
+                ],
                 "properties": {
-                    "id": {
-                        "type": "integer"
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "user@example.com"
                     },
-                    "user_id": {
-                        "type": "integer"
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "example": "password123"
                     },
-                    "partner_id": {
-                        "type": "integer",
+                    "device_name": {
+                        "type": "string",
+                        "example": "iPhone 12",
                         "nullable": true
                     },
-                    "status": {
-                        "type": "string",
-                        "example": "active"
-                    },
-                    "rating": {
-                        "type": "number",
-                        "format": "float",
-                        "example": 4.9
-                    },
-                    "total_trips": {
-                        "type": "integer",
-                        "example": 120
+                    "revoke_others": {
+                        "type": "boolean",
+                        "example": false,
+                        "nullable": true
                     }
                 },
                 "type": "object"
             },
-            "Order": {
+            "RegisterRequest": {
+                "required": [
+                    "name",
+                    "email",
+                    "password",
+                    "password_confirmation",
+                    "role"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "user@example.com"
+                    },
+                    "phone_number": {
+                        "type": "string",
+                        "example": "+1234567890",
+                        "nullable": true
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "example": "password123"
+                    },
+                    "password_confirmation": {
+                        "type": "string",
+                        "format": "password",
+                        "example": "password123"
+                    },
+                    "role": {
+                        "type": "string",
+                        "enum": [
+                            "customer",
+                            "driver",
+                            "partner_admin",
+                            "admin"
+                        ],
+                        "example": "customer"
+                    },
+                    "device_name": {
+                        "type": "string",
+                        "example": "iPhone 12",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "AuthResponse": {
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Login successful"
+                    },
+                    "token": {
+                        "type": "string",
+                        "example": "1|abcdef123456..."
+                    },
+                    "user": {
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "name": {
+                                "type": "string",
+                                "example": "John Doe"
+                            },
+                            "email": {
+                                "type": "string",
+                                "format": "email",
+                                "example": "user@example.com"
+                            },
+                            "phone_number": {
+                                "type": "string",
+                                "example": "+1234567890",
+                                "nullable": true
+                            },
+                            "role": {
+                                "type": "string",
+                                "example": "customer"
+                            },
+                            "email_verified_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "nullable": true
+                            },
+                            "created_at": {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            "updated_at": {
+                                "type": "string",
+                                "format": "date-time"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "UserResponse": {
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "user": {
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "name": {
+                                "type": "string",
+                                "example": "John Doe"
+                            },
+                            "email": {
+                                "type": "string",
+                                "format": "email",
+                                "example": "user@example.com"
+                            },
+                            "phone_number": {
+                                "type": "string",
+                                "example": "+1234567890",
+                                "nullable": true
+                            },
+                            "role": {
+                                "type": "string",
+                                "example": "customer"
+                            },
+                            "email_verified_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "nullable": true
+                            },
+                            "created_at": {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            "updated_at": {
+                                "type": "string",
+                                "format": "date-time"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "DriverProfile": {
                 "properties": {
                     "id": {
                         "type": "integer",
                         "example": 1
                     },
-                    "customer_id": {
+                    "user_id": {
                         "type": "integer",
-                        "example": 10
+                        "example": 5
                     },
                     "partner_id": {
                         "type": "integer",
                         "example": 2,
                         "nullable": true
                     },
-                    "driver_id": {
-                        "type": "integer",
-                        "example": 5,
-                        "nullable": true
-                    },
-                    "service_id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "pickup_address_id": {
-                        "type": "integer",
-                        "example": 100,
-                        "nullable": true
-                    },
-                    "dropoff_address_id": {
-                        "type": "integer",
-                        "example": 101,
-                        "nullable": true
-                    },
                     "status": {
                         "type": "string",
                         "example": "pending"
                     },
-                    "scheduled_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "nullable": true
+                    "rating": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 4.8
                     },
-                    "estimated_distance_m": {
+                    "total_trips": {
                         "type": "integer",
-                        "example": 12000,
-                        "nullable": true
+                        "example": 120
                     },
-                    "actual_distance_m": {
-                        "type": "integer",
-                        "example": 11500,
-                        "nullable": true
-                    },
-                    "estimated_fare": {
-                        "type": "number",
-                        "format": "float",
-                        "example": 250.5,
-                        "nullable": true
-                    },
-                    "actual_fare": {
-                        "type": "number",
-                        "format": "float",
-                        "example": 240,
-                        "nullable": true
-                    },
-                    "partner_share": {
-                        "type": "number",
-                        "format": "float",
-                        "example": 100,
-                        "nullable": true
-                    },
-                    "driver_share": {
-                        "type": "number",
-                        "format": "float",
-                        "example": 120,
-                        "nullable": true
-                    },
-                    "platform_fee": {
-                        "type": "number",
-                        "format": "float",
-                        "example": 20,
-                        "nullable": true
-                    },
-                    "payment_method": {
+                    "license_number": {
                         "type": "string",
-                        "example": "cash"
+                        "example": "D123456789"
                     },
-                    "payment_status": {
+                    "license_expiry_date": {
                         "type": "string",
-                        "example": "pending"
+                        "format": "date",
+                        "example": "2027-12-31"
                     },
-                    "cancel_reason": {
-                        "type": "string",
-                        "nullable": true
+                    "last_latitude": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 14.676041
                     },
-                    "meta": {
-                        "type": "object",
-                        "nullable": true
+                    "last_longitude": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 121.0437
                     },
                     "created_at": {
                         "type": "string",
@@ -1516,56 +1771,6 @@
                 },
                 "type": "object"
             },
-            "Service": {
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "partner_id": {
-                        "type": "integer",
-                        "example": 2,
-                        "nullable": true
-                    },
-                    "code": {
-                        "type": "string",
-                        "example": "RIDE_MOTO"
-                    },
-                    "name": {
-                        "type": "string",
-                        "example": "Motorcycle Ride"
-                    },
-                    "description": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "base_fare": {
-                        "type": "number",
-                        "format": "float",
-                        "example": 30
-                    },
-                    "per_km_rate": {
-                        "type": "number",
-                        "format": "float",
-                        "example": 10
-                    },
-                    "per_minute_rate": {
-                        "type": "number",
-                        "format": "float",
-                        "example": 2
-                    },
-                    "minimum_fare": {
-                        "type": "number",
-                        "format": "float",
-                        "example": 50
-                    },
-                    "is_active": {
-                        "type": "boolean",
-                        "example": true
-                    }
-                },
-                "type": "object"
-            },
             "User": {
                 "properties": {
                     "id": {
@@ -1661,6 +1866,13 @@
                 },
                 "type": "object"
             }
+        },
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
         }
     },
     "tags": [
@@ -1669,12 +1881,12 @@
             "description": "Addresses"
         },
         {
-            "name": "Drivers",
-            "description": "Drivers"
+            "name": "Authentication",
+            "description": "Authentication"
         },
         {
-            "name": "Orders",
-            "description": "Orders"
+            "name": "Drivers",
+            "description": "Drivers"
         },
         {
             "name": "Partner Branches",
@@ -1687,10 +1899,6 @@
         {
             "name": "Payments",
             "description": "Payments"
-        },
-        {
-            "name": "Services",
-            "description": "Services"
         },
         {
             "name": "Users",

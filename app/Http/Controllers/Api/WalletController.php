@@ -29,13 +29,6 @@ use Illuminate\Http\Request;
  *     @OA\Property(property="balance_after", type="number", format="float", example=350.00),
  *     @OA\Property(property="description", type="string", example="Earnings from completed trip")
  * )
- *
- * @OA\SecurityScheme(
- *     securityScheme="sanctum",
- *     type="http",
- *     scheme="bearer",
- *     bearerFormat="JWT"
- * )
  */
 class WalletController extends Controller
 {
